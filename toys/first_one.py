@@ -88,10 +88,11 @@ def main_job(**kwargs):
 		uniform_points_classification = get_uniform_random_points_classification(
 			uniform_random_points, target_function, up_line_classification)
 
-		weights, iterations = perceptron_learning_algorithm.run(uniform_random_points, 
-			uniform_points_classification)
+		weights, iterations = perceptron_learning_algorithm.run(
+			uniform_random_points, uniform_points_classification)
 
-		pla_random_points = perceptron_learning_algorithm.get_random_points_given_weights(weights)
+		pla_random_points = \
+			perceptron_learning_algorithm.get_random_points_given_weights(weights)
 
 		pla_line_equation = get_line_equation(pla_random_points)
 
