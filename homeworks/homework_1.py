@@ -1,14 +1,9 @@
-from typing import List, Tuple
-from numpy import ones,vstack, random, empty
-from numpy.linalg import lstsq
+from typing import Tuple
+from numpy import random, empty, mean
 import matplotlib.pyplot as plt
 
-
-def get_line_equation(points: List) -> Tuple:
-	x_coords, y_coords = zip(*points)
-	A = vstack([x_coords,ones(len(x_coords))]).T
-	m, c = lstsq(A, y_coords, rcond=None)[0]
-	return (m, c)
+from common.common_functions import get_line_equation
+from algorithms import perceptron_learning_algorithm
 
 
 def get_random_point(random_min=-1, random_max=1):
@@ -39,7 +34,9 @@ def get_uniform_random_points_classification(uniform_random_points,
 	points_classification = empty(n)
 	for i in range(n):
 		point = uniform_random_points[i]
-		is_higher_than_target = get_target(target_function, point[0]) < point[1]
+		is_higher_than_target = \
+			get_target(target_function, point[0]) < point[1]
+
 		points_classification[i] = up_line_classification \
 			if is_higher_than_target \
 			else up_line_classification * -1
@@ -47,7 +44,8 @@ def get_uniform_random_points_classification(uniform_random_points,
 	return points_classification
 
 def plot_fig(y_min, y_max, uniform_random_points, 
-	target_function, uniform_points_classification):
+	target_function, uniform_points_classification, 
+	pla_line_equation=None):
 	fig, ax = plt.subplots(figsize=(6,6))
 
 	axes = plt.gca()
@@ -56,12 +54,20 @@ def plot_fig(y_min, y_max, uniform_random_points,
 
 	mask = uniform_points_classification == y_max
 
-	ax.scatter(uniform_random_points[:,0][mask], uniform_random_points[:,1][mask], c='purple')
-	ax.scatter(uniform_random_points[:,0][~mask], uniform_random_points[:,1][~mask], c='pink')
+	ax.scatter(uniform_random_points[:,0][mask], 
+		uniform_random_points[:,1][mask], c='purple')
+	ax.scatter(uniform_random_points[:,0][~mask], 
+		uniform_random_points[:,1][~mask], c='pink')
 	ax.plot([y_min, y_max], [
 		get_target(target_function, y_min), 
 		get_target(target_function, y_max)], 
-		c='yellow')
+		c='black')
+
+	if pla_line_equation:
+		ax.plot([y_min, y_max], [
+		get_target(pla_line_equation, y_min), 
+		get_target(pla_line_equation, y_max)], 
+		c='red')
 
 	plt.show()
 
@@ -69,19 +75,38 @@ def main_job(**kwargs):
 	n_elements = kwargs['n_elements']
 	y_min = kwargs['min']
 	y_max = kwargs['max']
+	times_to_run = kwargs['times_to_run']
 
-	target_function = get_target_function()
-	up_line_classification = random.choice([y_max, y_min])
+	each_time_iterations = list()
+	each_time_weights = list()
 
-	uniform_random_points = random.uniform(y_min, y_max, size=(n_elements, 2))
-	uniform_points_classification = get_uniform_random_points_classification(
-		uniform_random_points, target_function, up_line_classification)
+	for i in range(times_to_run):
+		target_function = get_target_function()
+		up_line_classification = random.choice([y_max, y_min])
 
-	plot_fig(y_min, y_max, uniform_random_points, target_function, 
-		uniform_points_classification)
+		uniform_random_points = random.uniform(y_min, y_max, size=(n_elements, 2))
+		uniform_points_classification = get_uniform_random_points_classification(
+			uniform_random_points, target_function, up_line_classification)
 
+		weights, iterations = perceptron_learning_algorithm.run(uniform_random_points, 
+			uniform_points_classification)
+
+		pla_random_points = perceptron_learning_algorithm.get_random_points_given_weights(weights)
+
+		pla_line_equation = get_line_equation(pla_random_points)
+
+		# plot_fig(y_min, y_max, uniform_random_points, target_function, 
+	 	# 	uniform_points_classification, pla_line_equation)
+
+		each_time_weights.append(weights)
+		each_time_iterations.append(iterations)
+
+	print('It took me an average of {} iterations!'.format(
+		mean(each_time_iterations)))
+
+	
 
 if __name__ == '__main__':
-	main_job(n_elements=100, min=-1, max=1)
+	main_job(n_elements=10, min=-1, max=1, times_to_run=1000)
 
 
