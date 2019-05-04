@@ -43,6 +43,20 @@ def get_uniform_random_points_classification(uniform_random_points,
 
 	return points_classification
 
+def calculate_expected_error(n_elements, pla_function, target_function, 
+	up_line_classification, y_min, y_max):
+
+	other_random_points = random.uniform(y_min, y_max, size=(n_elements, 2))
+	other_points_classification_pla = get_uniform_random_points_classification(
+		other_random_points, pla_function, up_line_classification)
+	other_points_classification_target = get_uniform_random_points_classification(
+		other_random_points, target_function, up_line_classification)
+
+	misclassified_points_quantity = sum([1 for i, x in enumerate(
+ 		other_points_classification_pla) if x != other_points_classification_target[i]])
+
+	return misclassified_points_quantity/n_elements
+
 def plot_fig(y_min, y_max, uniform_random_points, 
 	target_function, uniform_points_classification, 
 	pla_line_equation=None):
@@ -78,7 +92,7 @@ def main_job(**kwargs):
 	times_to_run = kwargs['times_to_run']
 
 	each_time_iterations = list()
-	each_time_weights = list()
+	each_time_expected_error = list()
 
 	for i in range(times_to_run):
 		target_function = get_target_function()
@@ -98,16 +112,22 @@ def main_job(**kwargs):
 
 		# plot_fig(y_min, y_max, uniform_random_points, target_function, 
 	 	# 	uniform_points_classification, pla_line_equation)
+		expected_error = calculate_expected_error(n_elements, pla_line_equation, 
+			target_function, up_line_classification, y_min, y_max)
 
-		each_time_weights.append(weights)
+		each_time_expected_error.append(expected_error)
 		each_time_iterations.append(iterations)
 
 	print('It took me an average of {} iterations!'.format(
 		mean(each_time_iterations)))
 
+	print('Expected error: {}'.format(
+		mean(each_time_expected_error)))
+
 	
 
 if __name__ == '__main__':
-	main_job(n_elements=10, min=-1, max=1, times_to_run=1000)
+	main_job(n_elements=10, min=-1, max=1, 
+		times_to_run=1000)
 
 
