@@ -2,46 +2,10 @@ from typing import Tuple
 from numpy import random, empty, mean
 import matplotlib.pyplot as plt
 
-from common.common_functions import get_line_equation
+from common.common_functions import get_line_equation, get_target_function,\
+	get_uniform_random_points_classification
 from algorithms import perceptron_learning_algorithm
 
-
-def get_random_point(random_min=-1, random_max=1):
-	x_coord = random.uniform(random_min, random_max)
-	y_coord = random.uniform(random_min, random_max)
-	return x_coord, y_coord
-
-
-def get_target_function(random_max=1, random_min=-1) -> Tuple:
-	points = list()
-
-	for i in range(2):
-		x_coord, y_coord = get_random_point(random_min, random_max)
-		points.append((x_coord, y_coord))
-
-	return get_line_equation(points)
-
-
-def get_target(target_function: Tuple, input_number: int):
-	return target_function[0]*input_number + target_function[1]
-
-
-def get_uniform_random_points_classification(uniform_random_points, 
-											 target_function: Tuple, 
-											 up_line_classification: int):
-
-	n = uniform_random_points.shape[0]
-	points_classification = empty(n)
-	for i in range(n):
-		point = uniform_random_points[i]
-		is_higher_than_target = \
-			get_target(target_function, point[0]) < point[1]
-
-		points_classification[i] = up_line_classification \
-			if is_higher_than_target \
-			else up_line_classification * -1
-
-	return points_classification
 
 def calculate_expected_error(n_elements, pla_function, target_function, 
 	up_line_classification, y_min, y_max):

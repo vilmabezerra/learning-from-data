@@ -1,4 +1,9 @@
+from common.common_functions import get_target_function, \
+	get_uniform_random_points_classification
 import numpy as np
+
+from algorithms import linear_regression, perceptron_learning_algorithm
+
 
 def get_coin_min_index(heads_result, tosses):
 	min_heads = tosses
@@ -45,8 +50,89 @@ def hoeffding_inequality_part(run_times=100000, coins_quantity=1000, tosses=10):
 	print('Average value of C1 fraction: {}'.format(np.mean([i[0] for i in average_fractions])))
 	print('Average value of Crand fraction: {}'.format(np.mean([i[1] for i in average_fractions])))
 
+def get_out_of_sample_errors(points, target_functions_list, up_line_classification_list):
+	out_of_sample_errors = list()
+	points_matrix = linear_regression.get_points_adapted_matrix(fresh_points)
+	for i, weights in enumerate(weights_list):
+		fresh_points_classification = \
+			get_uniform_random_points_classification(points, 
+				target_functions_list[i], up_line_classification_list[i])
 
+		out_linear_regression_classification = \
+			linear_regression.classify_points_given_weights(points_matrix, 
+				weights)
+
+		out_of_sample_error = \
+			sum([1 for i, x in enumerate(fresh_points_classification) 
+				if x != out_linear_regression_classification[i]]) / \
+					len(fresh_points_classification)
+
+		out_of_sample_errors.append(out_of_sample_error)
+	return out_of_sample_errors
+
+def linear_regression_part1(n_points, run_times=1000, y_min=-1, y_max=1):
+	in_sample_errors = list()
+	weights_list = list()
+	target_functions_list = list()
+	up_line_classification_list = list()
+
+	for i in range(run_times):
+		target_function = get_target_function()
+		points = np.random.uniform(y_min, y_max, size=(n_points, 2))
+		up_line_classification = np.random.choice([y_max, y_min])
+
+		points_classification = get_uniform_random_points_classification(
+			points, target_function, up_line_classification)
+
+		weights, points_matrix = linear_regression.run(points, points_classification)
+
+		linear_regression_classification = \
+			linear_regression.classify_points_given_weights(points_matrix, 
+				weights)
+
+		in_sample_error = sum([1 for i, x in enumerate(points_classification) 
+			if x != linear_regression_classification[i]]) / n_points
+
+		output_str = f'iteration: {i}, E_in: {in_sample_error}'
+		print(output_str, end='\r'*len(output_str))
+
+		target_functions_list.append(target_function)
+		up_line_classification_list.append(up_line_classification)
+		weights_list.append(weights)
+		in_sample_errors.append(in_sample_error)
+
+	print('Average in sample error: {}'.format(np.mean(in_sample_errors)))
+
+	fresh_points = np.random.uniform(y_min, y_max, size=(1000, 2))
+
+	out_of_sample_errors = get_out_of_sample_errors(fresh_points, 
+		target_functions_list, up_line_classification_list)
+
+	print('Average out of sample error: {}'.format(np.mean(out_of_sample_errors)))
+
+
+def linear_regression_part2(n_points, run_times=1000, y_min=-1, y_max=1):
+	iterations_list = list()
+
+	for i in range(run_times):
+		target_function = get_target_function()
+		points = np.random.uniform(y_min, y_max, size=(n_points, 2))
+		up_line_classification = np.random.choice([y_max, y_min])
+
+		points_classification = get_uniform_random_points_classification(
+			points, target_function, up_line_classification)
+
+		weights, _ = linear_regression.run(points, points_classification)
+
+		_, iterations = perceptron_learning_algorithm.run(
+			points, points_classification, np.ravel(weights))
+
+		iterations_list.append(iterations)
+
+	print(f'Average iterations: {np.mean(iterations_list)}')
 
 
 if __name__ == '__main__':
 	hoeffding_inequality_part()
+	linear_regression_part1(n_points=100)
+	linear_regression_part2(n_points=10)

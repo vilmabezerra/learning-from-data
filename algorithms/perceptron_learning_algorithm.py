@@ -23,9 +23,9 @@ def get_random_points_given_weights(weights, points_quantity=2):
 	return random_points
 
 
-def run(points, points_classification):
-	weights = random.uniform(size=3)
-	misclassified_points = [(insert(x,0,1, axis=0), index) for index, x in enumerate(points)]
+def run(points, points_classification, weights=random.uniform(size=3)):
+	misclassified_points = get_misclassified_points(
+			points, points_classification, weights)
 	iterations = 0
 
 	while len(misclassified_points) > 0:
