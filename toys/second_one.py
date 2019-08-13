@@ -1,5 +1,6 @@
 from common.common_functions import get_target_function, \
-	get_uniform_random_points_classification
+	get_uniform_random_points_classification, \
+	get_uniform_random_points_classification_with_predefined_target_function
 import numpy as np
 
 from algorithms import linear_regression, perceptron_learning_algorithm
@@ -50,11 +51,11 @@ def hoeffding_inequality_part(run_times=100000, coins_quantity=1000, tosses=10):
 	print('Average value of C1 fraction: {}'.format(np.mean([i[0] for i in average_fractions])))
 	print('Average value of Crand fraction: {}'.format(np.mean([i[1] for i in average_fractions])))
 
-def get_out_of_sample_errors(points, target_functions_list, up_line_classification_list):
+def get_out_of_sample_errors(points, target_functions_list, up_line_classification_list, weights_list):
 	out_of_sample_errors = list()
-	points_matrix = linear_regression.get_points_adapted_matrix(fresh_points)
+	points_matrix = linear_regression.get_points_adapted_matrix(points)
 	for i, weights in enumerate(weights_list):
-		fresh_points_classification = \
+		points_classification = \
 			get_uniform_random_points_classification(points, 
 				target_functions_list[i], up_line_classification_list[i])
 
@@ -63,9 +64,9 @@ def get_out_of_sample_errors(points, target_functions_list, up_line_classificati
 				weights)
 
 		out_of_sample_error = \
-			sum([1 for i, x in enumerate(fresh_points_classification) 
+			sum([1 for i, x in enumerate(points_classification) 
 				if x != out_linear_regression_classification[i]]) / \
-					len(fresh_points_classification)
+					len(points_classification)
 
 		out_of_sample_errors.append(out_of_sample_error)
 	return out_of_sample_errors
@@ -106,7 +107,7 @@ def linear_regression_part1(n_points, run_times=1000, y_min=-1, y_max=1):
 	fresh_points = np.random.uniform(y_min, y_max, size=(1000, 2))
 
 	out_of_sample_errors = get_out_of_sample_errors(fresh_points, 
-		target_functions_list, up_line_classification_list)
+		target_functions_list, up_line_classification_list, weights_list)
 
 	print('Average out of sample error: {}'.format(np.mean(out_of_sample_errors)))
 
@@ -141,12 +142,11 @@ def add_noise_to_points_classification(points_classification, n_points,
 def calculate_avg_E_in_adding_noise_to_data(n_points, run_times, y_min, y_max):
 	in_sample_errors = list()
 	for i in range(run_times):
-		target_function = get_target_function()
 		points = np.random.uniform(y_min, y_max, size=(n_points, 2))
-		up_line_classification = np.random.choice([y_max, y_min])
 
-		points_classification = get_uniform_random_points_classification(
-			points, target_function, up_line_classification)
+		points_classification = \
+		get_uniform_random_points_classification_with_predefined_target_function(
+			points)
 
 		# noisy_points_classification = add_noise_to_points_classification(
 			# points_classification, n_points)
@@ -173,12 +173,11 @@ def calculate_average_weights_when_transforming_data(n_points, run_times,
 	weights_list = list()
 
 	for i in range(run_times):
-		target_function = get_target_function()
 		points = np.random.uniform(y_min, y_max, size=(n_points, 2))
-		up_line_classification = np.random.choice([y_max, y_min])
 
-		points_classification = get_uniform_random_points_classification(
-			points, target_function, up_line_classification)
+		points_classification = \
+		get_uniform_random_points_classification_with_predefined_target_function(
+			points)
 
 		weights, _ = linear_regression.run_with_transformation(points, 
 			points_classification)
@@ -199,9 +198,13 @@ def nonlinear_regression_part(n_points=1000, run_times=1000,
 		run_times, y_min, y_max)
 	print(f'Average weights when data is transformed: {average_weights}')
 
+	out_of_sample_errors = \
+		calculate_avg_E_in_adding_noise_to_data(n_points, run_times, y_min, y_max)
+	print('Average E_out when data is noisy: {}'.format(np.mean(out_of_sample_errors)))
+
 
 if __name__ == '__main__':
-	hoeffding_inequality_part()
-	linear_regression_part1(n_points=100)
-	linear_regression_part2(n_points=10)
+	# hoeffding_inequality_part()
+	# linear_regression_part1(n_points=100)
+	# linear_regression_part2(n_points=10)
 	nonlinear_regression_part(n_points=1000)
