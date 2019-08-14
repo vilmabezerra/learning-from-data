@@ -245,6 +245,6 @@ def nonlinear_regression_part(n_points=1000, run_times=1000,
 
 if __name__ == '__main__':
 	# hoeffding_inequality_part()
-	# linear_regression_part1(n_points=100)
-	# linear_regression_part2(n_points=10)
+	linear_regression_part1(n_points=100)
+	linear_regression_part2(n_points=10)
 	nonlinear_regression_part(n_points=1000)
