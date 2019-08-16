@@ -49,7 +49,7 @@ def plot_fig(y_min, y_max, uniform_random_points,
 
 	plt.show()
 
-def main_job(**kwargs):
+def generate_data_and_train_pla(**kwargs):
 	n_elements = kwargs['n_elements']
 	y_min = kwargs['min']
 	y_max = kwargs['max']
@@ -91,7 +91,7 @@ def main_job(**kwargs):
 	
 
 if __name__ == '__main__':
-	main_job(n_elements=10, min=-1, max=1, 
+	generate_data_and_train_pla(n_elements=10, min=-1, max=1, 
 		times_to_run=1000)
 
 

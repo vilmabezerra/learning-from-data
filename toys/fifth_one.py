@@ -1,38 +1,6 @@
-import math
+from algorithms.gradient_descent import *
+from algorithms.logistic_regression import logistic_regression
 
-from algorithms import gradient_descent
-
-def error_surface_result(u, v):
-	return (u*math.exp(v) - 2*v*math.exp(-u))**2
-
-def u_partial_derivative(u, v):
-	return 2*(math.exp(v) + 2*v*math.exp(-u))*(u*math.exp(v) - 2*v*math.exp(-u))
-
-def v_partial_derivative(u, v):
-	return 2*(u*math.exp(v) - 2*math.exp(-u))*(u*math.exp(v) - 2*v*math.exp(-u))
-
-
-def gradient_descent_step(u, v, learning_rate):
-	u_derivative = u_partial_derivative(u, v)
-	v_derivative = v_partial_derivative(u, v)
-	u_step_size = gradient_descent.get_variable_step_size(learning_rate, u_derivative)
-	v_step_size = gradient_descent.get_variable_step_size(learning_rate, v_derivative)
-	u = gradient_descent.update_variable_given_step_size(u, u_step_size)
-	v = gradient_descent.update_variable_given_step_size(v, v_step_size)
-	actual_value = error_surface_result(u, v)
-	return actual_value, u, v
-
-def coordinate_descent_step(u, v, learning_rate, iteration_number):
-	if iteration_number%2:
-		v_derivative = v_partial_derivative(u, v)
-		step_size = gradient_descent.get_variable_step_size(learning_rate, v_derivative)
-		v = gradient_descent.update_variable_given_step_size(v, step_size)
-	else:
-		u_derivative = u_partial_derivative(u, v)
-		step_size = gradient_descent.get_variable_step_size(learning_rate, u_derivative)
-		u = gradient_descent.update_variable_given_step_size(u, step_size)
-	actual_value = error_surface_result(u, v)
-	return actual_value, u, v
 
 def iterations_to_achieve_minimum_error(min_value, initial_u=1, initial_v=1, learning_rate=0.1):
 	n_iterations = 1
@@ -53,16 +21,38 @@ def minimum_error_given_iterations_number(iterations, initial_u=1, initial_v=1, 
 		iterations -= 1
 	return actual_value, u, v
 
+def average_epochs_and_e_out_to_converge(iterations, n_elements, y_min, y_max, learning_rate):
+	sum_epochs = []
+	e_outs = []
+	while iterations > 0:
+		epochs, weights = logistic_regression(n_elements, y_min, y_max, learning_rate)
+		sum_epochs.append(epochs)
+
+		e_out = calculate_logistic_regression_e_out(weights, n_elements, y_min, y_max)
+		e_outs.append(e_out)
+		
+	average_epochs = sum(sum_epochs) / iterations
+	average_e_out = sum(e_outs) / iterations
+	return average_epochs, average_e_out
+
 def gradient_descent_part(min_value):
 	n_iterations, u, v = \
 		iterations_to_achieve_minimum_error(min_value)
 
-	print('Iterations to error get bellow to 1.0e-14: {}'.format(n_iterations))
-	print(f'u and v coordinates at the end: ({u}, {v})')
+	print('\nIterations to error get bellow to 1.0e-14: {}'.format(n_iterations))
+	print(f'\nu and v coordinates at the end: ({u}, {v})')
 
 	min_error, u, v = minimum_error_given_iterations_number(iterations=30)
-	print('Error after 15 full iterations: {:.3e}'.format(min_error))
+	print('\nError after 15 full iterations: {:.3e}'.format(min_error))
+
+def logistic_regression_part(iterations, n_elements=100, y_min=-1, y_max=1, learning_rate=0.01):
+	average_epochs, average_e_out = \
+		average_epochs_and_e_out_to_converge(iterations, n_elements, y_min, y_max, learning_rate)
+
+	print('\nAverage epochs to converge: {}'.format(average_epochs))
+	print('\nAverage e_out to converge: {}'.format(average_e_out))
 
 
 if __name__ == '__main__':
-	gradient_descent_part(min_value=1e-14)
+	# gradient_descent_part(min_value=1e-14)
+	logistic_regression_part(iterations=1)
