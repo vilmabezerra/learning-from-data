@@ -99,8 +99,8 @@ def linear_regression_part1(n_points, run_times=1000, y_min=-1, y_max=1):
 		in_sample_error = sum([1 for i, x in enumerate(points_classification) 
 			if x != linear_regression_classification[i]]) / n_points
 
-		output_str = f'\riteration: {i}, E_in: {in_sample_error}'
-		print(output_str, end='')
+		# output_str = f'\riteration: {i}, E_in: {in_sample_error}'
+		# print(output_str, end='')
 
 		target_functions_list.append(target_function)
 		up_line_classification_list.append(up_line_classification)
@@ -168,12 +168,12 @@ def calculate_avg_E_in_adding_noise_to_data(n_points, run_times, y_min, y_max):
 		in_sample_error = sum([1 for i, x in enumerate(noisy_points_classification) 
 			if x != linear_regression_classification[i]]) / n_points
 
-		output_str = f'\riteration: {i}, E_in: {in_sample_error}'
-		print(output_str, end='')
+		# output_str = f'\riteration: {i}, E_in: {in_sample_error}'
+		# print(output_str, end='')
 
 		in_sample_errors.append(in_sample_error)
 
-	return in_sample_errors
+	return np.mean(in_sample_errors)
 
 
 def calculate_avg_E_out_adding_noise_to_data(n_points, run_times, y_min, y_max, weights):
@@ -197,12 +197,12 @@ def calculate_avg_E_out_adding_noise_to_data(n_points, run_times, y_min, y_max, 
 		out_sample_error = sum([1 for i, x in enumerate(noisy_points_classification) 
 			if x != linear_regression_classification[i]]) / n_points
 
-		output_str = f'\riteration: {i}, E_out: {out_sample_error}'
-		print(output_str, end='')
+		# output_str = f'\riteration: {i}, E_out: {out_sample_error}'
+		# print(output_str, end='')
 
 		out_sample_errors.append(out_sample_error)
 
-	return out_sample_errors
+	return np.mean(out_sample_errors)
 
 
 def calculate_average_weights_when_transforming_data(n_points, run_times, 
@@ -227,20 +227,20 @@ def calculate_average_weights_when_transforming_data(n_points, run_times,
 def nonlinear_regression_part(n_points=1000, run_times=1000, 
 	y_min=-1, y_max=1):
 
-	in_sample_errors = \
+	in_sample_error = \
 		calculate_avg_E_in_adding_noise_to_data(n_points, run_times, y_min, y_max)
 
-	print('\nAverage E_in when data is noisy: {}\n'.format(np.mean(in_sample_errors)))
+	print('\nLinear Regression average E_in when data is noisy: {}\n'.format(in_sample_error))
 
 	average_weights = calculate_average_weights_when_transforming_data(n_points, 
 		run_times, y_min, y_max)
-	print(f'\nAverage weights when data is transformed: {average_weights}\n')
+	print(f'\nNon-Linear Regression average weights: {average_weights}\n')
 
 	weights = np.array(average_weights)
 
-	out_of_sample_errors = \
+	out_of_sample_error = \
 		calculate_avg_E_out_adding_noise_to_data(n_points, run_times, y_min, y_max, weights)
-	print('\nAverage E_out when data is noisy: {}\n'.format(np.mean(out_of_sample_errors)))
+	print('\nNon-Linear Regression average E_out when data is noisy: {}\n'.format(out_of_sample_error))
 
 
 if __name__ == '__main__':

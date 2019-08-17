@@ -1,5 +1,5 @@
 from algorithms.gradient_descent import *
-from algorithms.logistic_regression import logistic_regression
+from algorithms.logistic_regression import *
 
 
 def iterations_to_achieve_minimum_error(min_value, initial_u=1, initial_v=1, learning_rate=0.1):
@@ -24,13 +24,15 @@ def minimum_error_given_iterations_number(iterations, initial_u=1, initial_v=1, 
 def average_epochs_and_e_out_to_converge(iterations, n_elements, y_min, y_max, learning_rate):
 	sum_epochs = []
 	e_outs = []
-	while iterations > 0:
+	n_iterations = iterations
+	while n_iterations > 0:
 		epochs, weights = logistic_regression(n_elements, y_min, y_max, learning_rate)
 		sum_epochs.append(epochs)
 
 		e_out = calculate_logistic_regression_e_out(weights, n_elements, y_min, y_max)
 		e_outs.append(e_out)
-		
+		n_iterations -= 1 
+
 	average_epochs = sum(sum_epochs) / iterations
 	average_e_out = sum(e_outs) / iterations
 	return average_epochs, average_e_out
@@ -50,9 +52,9 @@ def logistic_regression_part(iterations, n_elements=100, y_min=-1, y_max=1, lear
 		average_epochs_and_e_out_to_converge(iterations, n_elements, y_min, y_max, learning_rate)
 
 	print('\nAverage epochs to converge: {}'.format(average_epochs))
-	print('\nAverage e_out to converge: {}'.format(average_e_out))
+	print('\nAverage e_out: {}'.format(average_e_out))
 
 
 if __name__ == '__main__':
-	# gradient_descent_part(min_value=1e-14)
-	logistic_regression_part(iterations=1)
+	gradient_descent_part(min_value=1e-14)
+	logistic_regression_part(iterations=100)
