@@ -1,5 +1,7 @@
+import math
+
 from numpy.linalg import lstsq
-from numpy import ones,vstack, random, empty
+from numpy import ones,vstack, random, empty, sign
 from typing import List, Tuple
 
 
@@ -28,6 +30,7 @@ def get_target_function(random_max=1, random_min=-1) -> Tuple:
 
 	return get_line_equation(points)
 
+
 def get_uniform_random_points_classification(uniform_random_points, 
 											 target_function: Tuple, 
 											 up_line_classification: int):
@@ -44,3 +47,37 @@ def get_uniform_random_points_classification(uniform_random_points,
 			else up_line_classification * -1
 
 	return points_classification
+
+
+def get_predefined_target(input_number: int):
+	return sign(input_number[0]**2 + input_number[1]**2 - 0.6)
+
+def error_surface_result(u, v):
+	return (u*math.exp(v) - 2*v*math.exp(-u))**2
+
+def u_partial_derivative(u, v):
+	return 2*(math.exp(v) + 2*v*math.exp(-u))*(u*math.exp(v) - 2*v*math.exp(-u))
+
+def v_partial_derivative(u, v):
+	return 2*(u*math.exp(v) - 2*math.exp(-u))*(u*math.exp(v) - 2*v*math.exp(-u))
+
+def get_uniform_random_points_classification_with_predefined_target_function(
+	uniform_random_points):
+
+	n = uniform_random_points.shape[0]
+	points_classification = empty(n)
+	for i in range(n):
+		point = uniform_random_points[i]
+		points_classification[i] = get_predefined_target(point)
+
+	return points_classification
+
+def generate_uniform_random_points_and_their_classes(n_elements=100, y_max=1, y_min=-1):
+	points = random.uniform(y_max, y_min, size=(n_elements, 2))
+
+	target_function = get_target_function()
+	up_line_classification = random.choice([y_max, y_min])
+	points_class = get_uniform_random_points_classification(points, 
+		target_function, up_line_classification)
+
+	return points, points_class

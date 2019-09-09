@@ -13,6 +13,14 @@ def get_misclassified_points(points, points_classification, weights):
 			misclassified_points.append((insert(point, 0, 1, axis=0), index))
 	return misclassified_points
 
+def calculate_E_out(points, points_classification, weights):
+	misclassified_points = list()
+	for index, point in enumerate(points):
+		model_classification = get_model_classification(weights, point)
+		if model_classification != points_classification[index]:
+			misclassified_points.append((insert(point, 0, 1, axis=0), index))
+	e_out = len(misclassified_points)/len(points)
+	return e_out
 
 def get_random_points_given_weights(weights, points_quantity=2):
 	random_points = list()
@@ -40,14 +48,3 @@ def run(points, points_classification, weights=random.uniform(size=3)):
 
 
 	return weights, iterations
-
-def run_several_times(points, points_classification, times=1000):
-	each_time_iterations = list()
-	each_time_weights = list()
-
-	for i in range(times):
-		weights, iterations = run(points, points_classification)
-		each_time_weights.append(weights)
-		each_time_iterations.append(iterations)
-
-	return each_time_weights, each_time_iterations
